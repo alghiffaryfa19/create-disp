@@ -2,15 +2,19 @@ cmake_minimum_required(VERSION 3.10)
 
 project(create_disp)
 
-
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-option(TARGET_USES_REAL_HWC "Enable real HWC present/validate path" OFF)
-
 add_compile_options(-Werror)
 
-add_executable(create-disp create-disp_buffers.cpp  create-disp_core.cpp  create-disp_display.cpp  create-disp_threads.cpp  main.cpp)
+add_executable(create-disp 
+    create-disp_buffers.cpp  
+    create-disp_core.cpp  
+    create-disp_display.cpp  
+    create-disp_threads.cpp  
+    hwc2_socket_stub.cpp
+    main.cpp
+)
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBDRM REQUIRED libdrm)
@@ -21,20 +25,11 @@ link_directories(${LIBDRM_LIBRARY_DIRS})
 
 target_include_directories(create-disp PRIVATE
     ${SYSTEMD_INCLUDE_DIRS}
+    ${CMAKE_CURRENT_SOURCE_DIR}
     /usr/include/libdrm
-    /usr/include/android
 )
 
-if(TARGET_USES_REAL_HWC)
-    target_compile_definitions(create-disp PRIVATE TARGET_USES_REAL_HWC=1)
-endif()
-
 target_link_libraries(create-disp
-    hwc2
-    hybris-common
-    hybris-eglplatformcommon
-    hybris-platformcommon
-    gralloc
     ${LIBDRM_LIBRARIES}
     ${SYSTEMD_LIBRARIES}
 )

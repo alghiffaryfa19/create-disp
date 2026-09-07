@@ -32,9 +32,9 @@
 #include <xf86drm.h>
 #include <systemd/sd-daemon.h>
 
-#include <hybris/gralloc/gralloc.h>
-#include <hybris/hwc2/hwc2_compatibility_layer.h>
-#include <hybris/platforms/common/windowbuffer.h>
+
+
+#include "hwc2_compat_layer.h"
 
 namespace create_disp {
 
