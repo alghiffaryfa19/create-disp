@@ -16,11 +16,11 @@ static void connect_socket() {
     struct sockaddr_un addr;
     memset(&addr, 0, sizeof(addr));
     addr.sun_family = AF_UNIX;
-    const char* socket_path = "containermanager_disp";
-    addr.sun_path[0] = '\0';
-    strncpy(&addr.sun_path[1], socket_path, sizeof(addr.sun_path) - 2);
+    const char* socket_path = "/var/display_daemon.sock";
+    
+    strncpy(addr.sun_path, socket_path, sizeof(addr.sun_path) - 1);
 
-    if (connect(g_socket_fd, (struct sockaddr*)&addr, sizeof(sa_family_t) + strlen(socket_path) + 1) < 0) {
+    if (connect(g_socket_fd, (struct sockaddr*)&addr, sizeof(struct sockaddr_un)) < 0) {
         close(g_socket_fd);
         g_socket_fd = -1;
     }
