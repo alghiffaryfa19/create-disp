@@ -16,7 +16,7 @@ static void connect_socket() {
     struct sockaddr_un addr;
     memset(&addr, 0, sizeof(addr));
     addr.sun_family = AF_UNIX;
-    const char* socket_path = "/var/display_daemon.sock";
+    const char* socket_path = "/tmp/display_daemon.sock";
     
     strncpy(addr.sun_path, socket_path, sizeof(addr.sun_path) - 1);
 
