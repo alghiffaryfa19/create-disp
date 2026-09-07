@@ -5,6 +5,8 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
+#include <thread>
+#include <chrono>
 
 static int g_socket_fd = -1;
 
@@ -72,6 +74,8 @@ struct hwc2_compat_layer {};
 static hwc2_compat_device g_dev;
 static hwc2_compat_display g_disp;
 static hwc2_compat_layer g_layer;
+static HWC2EventListener* g_event_listener = nullptr;
+static int32_t g_sequence_id = 0;
 
 hwc2_compat_device_t* hwc2_compat_device_new(bool) {
     connect_socket();
@@ -81,8 +85,23 @@ hwc2_compat_device_t* hwc2_compat_device_new(bool) {
     return &g_dev;
 }
 
-void hwc2_compat_device_register_callback(hwc2_compat_device_t*, HWC2EventListener*, int32_t) {}
-void hwc2_compat_device_on_hotplug(hwc2_compat_device_t*, hwc2_display_t, bool) {}
+void hwc2_compat_device_register_callback(hwc2_compat_device_t*, HWC2EventListener* listener, int32_t sequenceId) {
+    g_event_listener = listener;
+    g_sequence_id = sequenceId;
+    // Fire a synthetic hotplug event after a short delay to trigger display connection
+    std::thread([]() {
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        if (g_event_listener && g_event_listener->onHotplugReceived) {
+            fprintf(stderr, "[hwc2_stub] Firing synthetic hotplug for display 0 (connected)\n");
+            g_event_listener->onHotplugReceived(g_event_listener, g_sequence_id, 0, true, true);
+        }
+    }).detach();
+}
+void hwc2_compat_device_on_hotplug(hwc2_compat_device_t*, hwc2_display_t display, bool connected) {
+    if (g_event_listener && g_event_listener->onHotplugReceived) {
+        g_event_listener->onHotplugReceived(g_event_listener, g_sequence_id, display, connected, false);
+    }
+}
 hwc2_compat_display_t* hwc2_compat_device_get_display_by_id(hwc2_compat_device_t*, hwc2_display_t display) {
     g_disp.id = (int64_t)display;
     return &g_disp;
