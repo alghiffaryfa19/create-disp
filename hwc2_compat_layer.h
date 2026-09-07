@@ -47,6 +47,7 @@ struct HWC2EventListener {
     void (*onVsyncReceived)(HWC2EventListener* listener, int32_t sequenceId, hwc2_display_t display, int64_t timestamp);
     void (*onHotplugReceived)(HWC2EventListener* listener, int32_t sequenceId, hwc2_display_t display, bool connected, bool primaryDisplay);
     void (*onRefreshReceived)(HWC2EventListener* listener, int32_t sequenceId, hwc2_display_t display);
+    void (*onDpmsReceived)(HWC2EventListener* listener, int32_t sequenceId, hwc2_display_t display, int32_t powerMode);
 };
 
 #ifdef __cplusplus
@@ -73,6 +74,29 @@ void hwc2_compat_layer_set_composition_type(hwc2_compat_layer_t* layer, int32_t 
 void hwc2_compat_layer_set_source_crop(hwc2_compat_layer_t* layer, float left, float top, float right, float bottom);
 void hwc2_compat_layer_set_display_frame(hwc2_compat_layer_t* layer, int32_t left, int32_t top, int32_t right, int32_t bottom);
 void hwc2_compat_layer_set_visible_region(hwc2_compat_layer_t* layer, int32_t left, int32_t top, int32_t right, int32_t bottom);
+
+#ifdef __cplusplus
+}
+#endif
+
+#define GRALLOC_USAGE_HW_TEXTURE 0x00000100U
+#define GRALLOC_USAGE_HW_RENDER 0x00000200U
+#define GRALLOC_USAGE_HW_COMPOSER 0x00000800U
+#define GRALLOC_USAGE_SW_READ_OFTEN 0x00000003U
+#define GRALLOC_USAGE_SW_WRITE_OFTEN 0x00000030U
+
+#define HAL_PIXEL_FORMAT_RGBA_8888 1
+#define HAL_PIXEL_FORMAT_RGBX_8888 2
+#define HAL_DATASPACE_UNKNOWN 0
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+int hybris_gralloc_allocate(int width, int height, int format, int usage, buffer_handle_t* handle, uint32_t* stride);
+int hybris_gralloc_release(buffer_handle_t handle, int closeFds);
+int hybris_gralloc_lock(buffer_handle_t handle, int usage, int l, int t, int w, int h, void** vaddr);
+int hybris_gralloc_unlock(buffer_handle_t handle);
 
 #ifdef __cplusplus
 }

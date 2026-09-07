@@ -137,3 +137,10 @@ void hwc2_compat_layer_set_display_frame(hwc2_compat_layer_t*, int32_t, int32_t,
 void hwc2_compat_layer_set_visible_region(hwc2_compat_layer_t*, int32_t, int32_t, int32_t, int32_t) {}
 
 } // extern "C"
+
+extern "C" {
+int hybris_gralloc_allocate(int, int, int, int, buffer_handle_t*, uint32_t*) { return -1; }
+int hybris_gralloc_release(buffer_handle_t, int) { return 0; }
+int hybris_gralloc_lock(buffer_handle_t, int, int, int, int, int, void**) { return -1; }
+int hybris_gralloc_unlock(buffer_handle_t) { return 0; }
+}
