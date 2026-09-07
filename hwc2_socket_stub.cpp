@@ -154,7 +154,12 @@ void hwc2_compat_layer_set_visible_region(hwc2_compat_layer_t*, int32_t, int32_t
 } // extern "C"
 
 extern "C" {
-int hybris_gralloc_allocate(int width, int /*height*/, int /*format*/, int /*usage*/, buffer_handle_t* /*handle*/, uint32_t* stride) {
+int hybris_gralloc_allocate(int width, int /*height*/, int /*format*/, int /*usage*/, buffer_handle_t* handle, uint32_t* stride) {
+    // Provide a minimal dummy native_handle so that (r == 0 && handle) passes
+    static native_handle_t dummy_handle_storage;
+    memset(&dummy_handle_storage, 0, sizeof(dummy_handle_storage));
+    dummy_handle_storage.version = sizeof(native_handle_t);
+    if (handle) *handle = &dummy_handle_storage;
     if (stride) *stride = (uint32_t)width;
     return 0;
 }
