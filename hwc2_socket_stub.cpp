@@ -97,11 +97,7 @@ void hwc2_compat_device_register_callback(hwc2_compat_device_t*, HWC2EventListen
         }
     }).detach();
 }
-void hwc2_compat_device_on_hotplug(hwc2_compat_device_t*, hwc2_display_t display, bool connected) {
-    if (g_event_listener && g_event_listener->onHotplugReceived) {
-        g_event_listener->onHotplugReceived(g_event_listener, g_sequence_id, display, connected, false);
-    }
-}
+void hwc2_compat_device_on_hotplug(hwc2_compat_device_t*, hwc2_display_t, bool) {}
 hwc2_compat_display_t* hwc2_compat_device_get_display_by_id(hwc2_compat_device_t*, hwc2_display_t display) {
     g_disp.id = (int64_t)display;
     return &g_disp;
@@ -158,7 +154,10 @@ void hwc2_compat_layer_set_visible_region(hwc2_compat_layer_t*, int32_t, int32_t
 } // extern "C"
 
 extern "C" {
-int hybris_gralloc_allocate(int, int, int, int, buffer_handle_t*, uint32_t*) { return -1; }
+int hybris_gralloc_allocate(int width, int /*height*/, int /*format*/, int /*usage*/, buffer_handle_t* /*handle*/, uint32_t* stride) {
+    if (stride) *stride = (uint32_t)width;
+    return 0;
+}
 int hybris_gralloc_release(buffer_handle_t, int) { return 0; }
 int hybris_gralloc_lock(buffer_handle_t, int, int, int, int, int, void**) { return -1; }
 int hybris_gralloc_unlock(buffer_handle_t) { return 0; }
